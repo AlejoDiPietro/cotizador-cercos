@@ -1,0 +1,7 @@
+# Los finales de linea se guardan y se sacan como LF en todas las plataformas.
+#
+# Sin esto, un clon en Windows saca CRLF y `prettier --check` falla en 39
+# archivos recien clonados: el repo estaria pidiendo un formato que el propio
+# checkout rompe. Con eol=lf, lo que hay en el disco es lo mismo en Windows,
+# en Linux y en el CI.
+* text=auto eol=lf
