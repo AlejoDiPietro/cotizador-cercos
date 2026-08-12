@@ -5,7 +5,7 @@ lado entran, y sale la lista de materiales, la mano de obra y el total con IVA.
 La cotización se guarda y queda en un link para mandar por WhatsApp, o se
 imprime como PDF. La lista de precios se edita desde la app.
 
-**Demo:** _(pendiente de deploy)_ · **Código:** este repo.
+**Demo:** **[cotizador-cercos.vercel.app](https://cotizador-cercos.vercel.app)** · **Código:** este repo.
 
 No es un CRUD de ejemplo. La parte difícil de un cotizador no es la pantalla: es
 que la cuenta esté bien, que un presupuesto que ya se mandó no cambie después, y
@@ -73,9 +73,12 @@ Es la misma razón por la que una factura no consulta la lista de precios, la
 congela. Un cotizador que recalcula al abrir el link es un cotizador que le
 cambia el precio al cliente sin avisarle.
 
-**Se comprueba en dos minutos:** anotá el total de la home, cambiá el precio del
-tejido en `/productos` y volvé. El total nuevo cambió; el link de `/c/K7M2QX`
-sigue diciendo exactamente lo mismo.
+**Se comprueba en dos minutos, en la demo:** anotá el total en
+[la home](https://cotizador-cercos.vercel.app), cambiá el precio del tejido en
+[`/productos`](https://cotizador-cercos.vercel.app/productos) y volvé. El total
+nuevo cambió; [`/c/K7M2QX`](https://cotizador-cercos.vercel.app/c/K7M2QX) sigue
+diciendo exactamente lo mismo. Si dejaste la lista rara, el botón "volver a la
+lista de referencia" la devuelve a su lugar.
 
 Por eso `Item.codigo` es un `String` y no una relación al catálogo: si mañana se
 deja de vender un artículo, el renglón de una cotización vieja tiene que seguir
