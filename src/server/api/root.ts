@@ -1,8 +1,10 @@
 import { cotizacionRouter } from "@/server/api/routers/cotizacion";
+import { productosRouter } from "@/server/api/routers/productos";
 import { crearContexto, crearLlamador, crearRouter } from "@/server/api/trpc";
 
 export const appRouter = crearRouter({
   cotizacion: cotizacionRouter,
+  productos: productosRouter,
 });
 
 export type AppRouter = typeof appRouter;
@@ -12,5 +14,4 @@ export type AppRouter = typeof appRouter;
  * La pagina de una cotizacion se renderiza en el servidor: pedirse a si misma
  * por la red seria pagar una request para hablar con su propio proceso.
  */
-export const llamarApi = async () =>
-  crearLlamador(appRouter)(await crearContexto());
+export const llamarApi = async () => crearLlamador(appRouter)(await crearContexto());

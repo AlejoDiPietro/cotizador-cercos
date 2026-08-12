@@ -13,7 +13,7 @@ export function BotonImprimir() {
     <button
       type="button"
       onClick={() => window.print()}
-      className="no-imprimir rounded-lg border border-linea-fuerte bg-white px-3.5 py-2 text-[13px] font-medium transition-colors hover:border-acento hover:text-acento"
+      className="no-imprimir rounded-lg border border-linea-fuerte bg-tarjeta px-3.5 py-2 text-[13px] font-medium transition-colors hover:border-acento hover:text-acento"
     >
       Imprimir o guardar en PDF
     </button>

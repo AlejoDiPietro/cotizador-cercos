@@ -26,6 +26,39 @@ datasource db {
   provider = "sqlite"
 }
 
+/// La lista de precios, que es lo unico de este proyecto que cambia todas las
+/// semanas. Se edita desde /productos.
+///
+/// El calculo NO lee esta tabla: la recibe como argumento. Por eso sigue siendo
+/// una funcion pura aunque los precios vivan acá.
+model Producto {
+  /// El codigo del material ES la identidad: no hace falta un id sintetico
+  /// arriba de algo que ya es unico y estable. Es el mismo string que queda
+  /// escrito en cada renglon de una cotizacion vieja.
+  codigo String @id
+
+  nombre String
+  unidad String
+
+  /// Lo que se le cobra al cliente, en centavos y sin IVA.
+  precio Int
+
+  /// Lo que cuesta comprarlo, en centavos. Nunca sale impreso en una
+  /// cotizacion: existe para saber si el trabajo deja plata.
+  costo Int
+
+  /// El precio de antes del ultimo cambio, para poder mostrar cuanto se movio.
+  /// Con inflacion, "hace 40 dias que no toco este precio" es un dato de
+  /// gestion, no un detalle de interfaz.
+  precioAnterior Int?
+
+  actualizadoEl DateTime @updatedAt
+
+  /// El orden en que se listan. Sin esto la lista de precios baila en cada
+  /// consulta y no hay forma de encontrar un renglon dos veces en el mismo lugar.
+  orden Int @default(0)
+}
+
 model Cotizacion {
   id String @id @default(cuid())
 

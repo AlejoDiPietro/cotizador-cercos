@@ -4,6 +4,7 @@ import { cotizar } from "@/dominio/cotizar";
 import { pedidoSchema, pedidoValidado } from "@/dominio/pedido";
 import { crearRouter, procedimientoPublico } from "@/server/api/trpc";
 import { codigoNuevo } from "@/server/codigo";
+import { listaDePrecios } from "@/server/precios";
 import { Prisma } from "@/generated/prisma/client";
 
 const datosDelCliente = z.object({
@@ -25,7 +26,9 @@ export const cotizacionRouter = crearRouter({
   guardar: procedimientoPublico
     .input(datosDelCliente.extend({ pedido: pedidoValidado }))
     .mutation(async ({ ctx, input }) => {
-      const calculo = cotizar(input.pedido);
+      // Los precios se leen acá y no llegan del navegador, por la misma razon
+      // que los totales: lo que manda el cliente no decide cuanto sale.
+      const calculo = cotizar(input.pedido, await listaDePrecios(ctx.db));
 
       // El codigo es aleatorio, asi que puede repetirse. La base tiene la
       // restriccion unica y aca se reintenta: la unicidad se defiende en la
@@ -84,7 +87,10 @@ export const cotizacionRouter = crearRouter({
       });
 
       if (!cotizacion) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "No existe esa cotización." });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "No existe esa cotización.",
+        });
       }
 
       return {

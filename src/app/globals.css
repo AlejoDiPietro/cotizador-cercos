@@ -2,33 +2,75 @@
 
 /**
  * Un solo lugar donde se decide como se ve la app.
- * Ningun componente escribe un color a mano: todos piden un token de estos.
+ *
+ * Ningun componente escribe un color a mano: todos piden un token de estos. Es
+ * lo que permite que exista el tema oscuro sin tocar un solo componente, y lo
+ * que evita el clasico "cambie el gris de las tablas y quedaron tres grises".
  */
 @theme {
-  --color-papel: #fbfaf7;
+  --color-fondo: #fbfaf7;
+  --color-tarjeta: #ffffff;
+
   --color-tinta: #16191d;
   --color-tinta-suave: #5b6470;
-  --color-linea: #e2ddd5;
+
+  --color-linea: #e7e2da;
   --color-linea-fuerte: #cfc8bd;
 
   /* Oxido: es el color de un alambrado a la intemperie. */
   --color-acento: #a2542a;
-  --color-acento-claro: #f4ece5;
+  --color-acento-claro: #f6efe8;
+  /**
+   * Lo que va ENCIMA del acento. No es siempre blanco: en tema oscuro el acento
+   * se aclara para tener contraste con el fondo, y ahi el texto blanco arriba
+   * pasa a ser ilegible. El par color/contra-color viaja junto o se rompe.
+   */
+  --color-sobre-acento: #ffffff;
 
+  /* El panel del total: oscuro en los dos temas, es la firma de la pantalla. */
   --color-panel: #1b1f24;
-  --color-panel-suave: #2a3037;
+  --color-panel-linea: #1b1f24;
 
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 }
 
+/**
+ * Tema oscuro.
+ *
+ * Se redefinen los tokens, no los componentes. El acento se aclara porque el
+ * oxido original sobre fondo oscuro queda barroso y pierde contraste, y el panel
+ * gana un borde: sobre un fondo casi negro, un panel casi negro sin borde
+ * desaparece.
+ */
+@media (prefers-color-scheme: dark) {
+  @theme {
+    --color-fondo: #14161a;
+    --color-tarjeta: #1b1e23;
+
+    --color-tinta: #ecebe8;
+    --color-tinta-suave: #9aa2ac;
+
+    --color-linea: #2a2e35;
+    --color-linea-fuerte: #3a4048;
+
+    --color-acento: #d98a5b;
+    --color-acento-claro: #2a221d;
+    --color-sobre-acento: #1a1206;
+
+    --color-panel: #23272e;
+    --color-panel-linea: #363b44;
+  }
+}
+
 html {
   /* Ancla el scroll debajo del header fijo cuando se salta a una seccion. */
   scroll-padding-top: 5rem;
+  color-scheme: light dark;
 }
 
 body {
-  background: var(--color-papel);
+  background: var(--color-fondo);
   color: var(--color-tinta);
   font-family: var(--font-sans);
 }
@@ -53,6 +95,12 @@ input[type="number"] {
   appearance: textfield;
 }
 
+/* Un foco visible y propio, en vez del anillo del navegador. */
+:focus-visible {
+  outline: 2px solid var(--color-acento);
+  outline-offset: 2px;
+}
+
 /**
  * Impresion.
  *
@@ -66,8 +114,24 @@ input[type="number"] {
     display: none !important;
   }
 
+  /**
+   * Los colores se fuerzan a claro aunque el navegador este en tema oscuro:
+   * imprimir en blanco sobre negro gasta un cartucho y se lee peor. Es el unico
+   * lugar donde se pisan los tokens.
+   */
+  :root {
+    --color-fondo: #ffffff;
+    --color-tarjeta: #ffffff;
+    --color-tinta: #000000;
+    --color-tinta-suave: #444444;
+    --color-linea: #cccccc;
+    --color-linea-fuerte: #999999;
+    --color-acento: #000000;
+  }
+
   body {
     background: #fff;
+    color: #000;
   }
 
   /* Un renglon de la tabla no se corta entre dos hojas. */
