@@ -96,20 +96,21 @@ El margen se mide **sobre el precio de venta, no sobre el costo**. Vender a $100
 lo que costó $70 es 30% de margen y 43% de recargo; confundirlos es como se
 termina vendiendo más barato de lo que se cree.
 
-### 5. Se clona y corre, sin una cuenta en ningún lado
+### 5. El modelo no usa un solo tipo propio de un motor
 
-La base de desarrollo es **un archivo SQLite**, y `npm run db:seed` deja la lista
-de precios cargada y tres cotizaciones de ejemplo para abrir. Un proyecto que
-solo arranca si primero te creás una cuenta en la nube y esperás que te den una
-connection string es un proyecto que nadie clona.
+Empecé con SQLite en un archivo, para poder clonar el repo y correrlo sin
+esperar que una nube me diera una connection string. Cuando llegó el momento de
+desplegarlo, el salto a PostgreSQL costó exactamente lo que había dicho que iba a
+costar: **dos líneas** — el `provider` del schema y el adapter en
+[`db.ts`](src/server/db.ts) —. Ni un modelo, ni un campo, ni una consulta, ni un
+test.
 
-Que eso sea posible no es suerte, es una restricción de diseño: **el modelo no
-usa un solo tipo propio de un motor.** El pedido se guarda como texto y no como
-`Json`, la plata son enteros y no hay atributos `@db.` de Postgres. Pasar a
-Postgres es cambiar el `provider` del schema y el adapter en
-[`db.ts`](src/server/db.ts) — dos líneas, cero cambios en el resto de la app.
+Eso no fue suerte, era la restricción: el pedido se guarda como **texto** y no
+como `Json` —que no existe en todos los motores—, la plata son enteros, y no hay
+un solo atributo `@db.` de Postgres en el schema. Escribir así cuesta un poco más
+el primer día y ahorra un rediseño el día que la base cambia.
 
-Y los totales del seed **no están escritos a mano**: salen de `cotizar()` con la
+Los totales del seed tampoco están escritos a mano: salen de `cotizar()` con la
 lista que quedó en la base. Un seed con números a mano miente en cuanto cambia
 una regla o un precio.
 
@@ -132,7 +133,7 @@ Es SVG escrito a mano, sin librería de gráficos: son cuatro `line` y un
 | Framework | Next.js 16 (App Router) · React 19                                    |
 | Tipos     | TypeScript en `strict` · Zod para los límites                         |
 | API       | tRPC 11 — tipada de punta a punta, sin generar cliente                |
-| Datos     | Prisma 7 · SQLite en desarrollo, PostgreSQL en producción             |
+| Datos     | Prisma 7 · PostgreSQL (Neon)                                          |
 | Estilos   | Tailwind CSS 4 · los colores son tokens, y de ahí sale el tema oscuro |
 | Tests     | Vitest sobre el dominio                                               |
 | CI        | GitHub Actions: formato, lint, tipos y tests en cada push             |
@@ -157,15 +158,20 @@ Tres cosas que **no** están y es a propósito:
 
 ```bash
 npm install
-cp .env.example .env        # ya viene apuntado a un archivo SQLite local
+cp .env.example .env        # y poné una DATABASE_URL de Postgres
 npm run db:push             # crea las tablas
 npm run db:seed             # lista de precios + 3 cotizaciones de ejemplo
 npm run dev                 # y entrá a /c/K7M2QX o a /productos
 ```
 
-No hace falta ningún servidor de base de datos, ni Docker, ni una cuenta en la
-nube. Sin `ADMIN_PIN` configurado, la lista de precios se edita sin clave: en tu
-propia máquina, pedir un PIN es solo molestia.
+Cualquier Postgres sirve; una base gratuita de [Neon](https://neon.com) tarda dos
+minutos. Sin `ADMIN_PIN` configurado, la lista de precios se edita sin clave: en
+tu propia máquina, pedir un PIN es solo molestia.
+
+En Vercel el deploy se ocupa solo de la base: el script `vercel-build` crea las
+tablas y siembra la lista **antes** de compilar, porque una base recién creada
+arranca vacía. El seed es idempotente y no pisa precios ya editados, así que
+volver a desplegar no deshace lo que alguien cambió desde `/productos`.
 
 ```bash
 npm test                    # los tests del dominio
@@ -191,7 +197,6 @@ src/
 
 ## Lo que falta
 
-- Desplegarlo con Postgres (Neon) para que haya demo pública.
 - **Una cotización guardada no recuerda su costo**, solo lo que se cobró. Se ve
   el margen mientras se cotiza, pero no se puede volver a una obra cerrada y
   preguntar a qué margen se cerró. Falta guardar el costo por renglón, y una
