@@ -1,7 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { cotizar } from "@/dominio/cotizar";
-import { pedidoValidado } from "@/dominio/pedido";
+import { pedidoSchema, pedidoValidado } from "@/dominio/pedido";
 import { crearRouter, procedimientoPublico } from "@/server/api/trpc";
 import { codigoNuevo } from "@/server/codigo";
 import { Prisma } from "@/generated/prisma/client";
@@ -38,7 +38,7 @@ export const cotizacionRouter = crearRouter({
               cliente: input.cliente || null,
               obra: input.obra || null,
               notas: input.notas || null,
-              pedido: input.pedido,
+              pedido: JSON.stringify(input.pedido),
               materiales: calculo.materiales,
               manoDeObra: calculo.manoDeObra,
               subtotal: calculo.subtotal,
@@ -89,6 +89,16 @@ export const cotizacionRouter = crearRouter({
 
       return {
         ...cotizacion,
+
+        /**
+         * El pedido sale de la base como texto y se valida, no se castea.
+         * Un `as` acá seria una promesa: "confien en que esto tiene la forma
+         * que digo". Lo que hay del otro lado de una base es un dato que
+         * escribio una version anterior de este mismo programa, y esa version
+         * puede haber guardado otra cosa.
+         */
+        pedido: pedidoSchema.parse(JSON.parse(cotizacion.pedido)),
+
         // `Decimal` no cruza a un Client Component: se convierte una sola vez,
         // aca, y no en cada lugar que lo muestre.
         items: cotizacion.items.map((item) => ({

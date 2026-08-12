@@ -11,7 +11,7 @@ No es un CRUD de ejemplo. La parte difícil de un cotizador no es la pantalla:
 es que la cuenta esté bien y que un presupuesto que ya se mandó no cambie
 después. Casi todas las decisiones de este repo salen de ahí.
 
-## Las cuatro decisiones que explican el código
+## Las cinco decisiones que explican el código
 
 ### 1. El cálculo es una función pura, y es lo único con tests
 
@@ -66,7 +66,24 @@ muestra sin centavos, así que si un renglón los tuviera, lo que suma el client
 con la calculadora no daría el total impreso. Un presupuesto cuyos renglones no
 suman el total es un presupuesto que no se firma.
 
-### 4. Las reglas del oficio están separadas del cálculo
+### 4. Se clona y corre, sin una cuenta en ningún lado
+
+La base de desarrollo es **un archivo SQLite**, y `npm run db:seed` deja tres
+cotizaciones de ejemplo listas para abrir. Un proyecto que solo arranca si
+primero te creás una cuenta en la nube y esperás que te den una connection
+string es un proyecto que nadie clona.
+
+Que eso sea posible no es suerte, es una restricción de diseño: **el modelo no
+usa un solo tipo propio de un motor.** El pedido se guarda como texto y no como
+`Json`, la plata son enteros y no hay atributos `@db.` de Postgres. Pasar a
+Postgres es cambiar el `provider` del schema y el adapter en
+[`db.ts`](src/server/db.ts) — dos líneas, cero cambios en el resto de la app.
+
+Y los totales del seed **no están escritos a mano**: salen de `cotizar()`, el
+mismo código que usa la app. Un seed con números a mano miente en cuanto cambia
+una regla.
+
+### 5. Las reglas del oficio están separadas del cálculo
 
 [`src/dominio/reglas.ts`](src/dominio/reglas.ts) tiene los números que salen de
 cómo se arma un cerco, no de cómo está escrito el programa: postes cada 3 m,
@@ -86,7 +103,7 @@ sin abrir el otro.
 | Framework | Next.js 16 (App Router) · React 19 |
 | Tipos | TypeScript en `strict` · Zod para los límites |
 | API | tRPC 11 — tipada de punta a punta, sin generar cliente |
-| Datos | Prisma 7 + PostgreSQL (Neon) |
+| Datos | Prisma 7 · SQLite en desarrollo, PostgreSQL en producción |
 | Estilos | Tailwind CSS 4, con los colores como tokens |
 | Tests | Vitest sobre el dominio |
 | CI | GitHub Actions: lint, typecheck y tests en cada push |
@@ -105,10 +122,14 @@ Dos cosas que **no** están y es a propósito:
 
 ```bash
 npm install
-cp .env.example .env        # y poné tu DATABASE_URL
+cp .env.example .env        # ya viene apuntado a un archivo SQLite local
 npm run db:push             # crea las tablas
-npm run dev
+npm run db:seed             # 3 cotizaciones de ejemplo
+npm run dev                 # y entrá a /c/K7M2QX
 ```
+
+No hace falta ningún servidor de base de datos, ni Docker, ni una cuenta en la
+nube.
 
 ```bash
 npm test                    # los tests del dominio
@@ -132,6 +153,7 @@ src/
 
 ## Lo que falta
 
+- Desplegarlo con Postgres (Neon) para que haya demo pública.
 - Catálogo de precios editable desde la app (hoy están en el código).
 - Reabrir una cotización guardada en el formulario para cotizar una variante.
 - Otros tipos de cerco: alambrado rural de hilos, olímpico, media sombra.

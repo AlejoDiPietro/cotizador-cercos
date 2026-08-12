@@ -5,22 +5,10 @@ import { notFound } from "next/navigation";
 import { BotonImprimir } from "@/components/BotonImprimir";
 import { Detalle } from "@/components/Detalle";
 import { pesos } from "@/dominio/cotizar";
-import { NOMBRE_POSTE, type Altura, type Rombo, type TipoPoste } from "@/dominio/reglas";
+import { NOMBRE_POSTE } from "@/dominio/reglas";
 import { llamarApi } from "@/server/api/root";
 
 type Props = { params: Promise<{ codigo: string }> };
-
-/** El pedido viaja como Json en la base: al leerlo hay que volver a darle forma. */
-type PedidoGuardado = {
-  tramos: number[];
-  cerrado: boolean;
-  altura: Altura;
-  rombo: Rombo;
-  tipoPoste: TipoPoste;
-  portones: number[];
-  conHormigon: boolean;
-  conManoDeObra: boolean;
-};
 
 async function buscar(codigo: string) {
   try {
@@ -44,7 +32,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function CotizacionGuardada({ params }: Props) {
   const { codigo } = await params;
   const cotizacion = await buscar(codigo);
-  const pedido = cotizacion.pedido as PedidoGuardado;
+  const pedido = cotizacion.pedido;
 
   const metros = pedido.tramos.reduce((a, b) => a + b, 0);
   const fecha = cotizacion.creadaEl.toLocaleDateString("es-AR", {

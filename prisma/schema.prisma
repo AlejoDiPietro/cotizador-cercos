@@ -15,8 +15,15 @@ generator client {
   output   = "../src/generated/prisma"
 }
 
+// SQLite para desarrollo, Postgres en produccion.
+//
+// El modelo esta escrito para que ese salto sea cambiar esta linea y el adapter
+// en src/server/db.ts, y nada mas: no usa ni un tipo propio de un motor. El
+// pedido se guarda como texto y no como `Json`, y la plata son enteros, asi que
+// el mismo schema corre igual en los dos lados. Un proyecto que solo arranca si
+// tenes una base en la nube es un proyecto que nadie clona.
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
 }
 
 model Cotizacion {
@@ -34,7 +41,11 @@ model Cotizacion {
 
   /// El pedido tal como lo cargaron, para poder reabrirlo en el formulario y
   /// cotizar una variante sin empezar de cero.
-  pedido Json
+  ///
+  /// Texto y no `Json`: `Json` no existe en todos los motores, y de todas
+  /// formas lo que sale de la base se valida con Zod al leerlo. Un blob que
+  /// guardo yo el mes pasado no es mas confiable que uno que manda un cliente.
+  pedido String
 
   /// Totales congelados, en CENTAVOS y sin IVA salvo `total`.
   materiales Int
@@ -63,7 +74,7 @@ model Item {
 
   /// Hay cantidades fraccionarias (kg de alambre de atadura), asi que no es Int.
   /// Decimal y no Float: con Float, 0.1 + 0.2 no da 0.3.
-  cantidad Decimal @db.Decimal(10, 2)
+  cantidad Decimal
 
   /// En centavos, sin IVA.
   precioUnitario Int

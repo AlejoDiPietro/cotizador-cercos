@@ -66,6 +66,7 @@ export function Cotizador() {
                     }
                     sufijo="m"
                     paso={0.5}
+                    etiqueta={`Metros del tramo ${i + 1}`}
                   />
                   {pedido.tramos.length > 1 && (
                     <button
@@ -112,6 +113,7 @@ export function Cotizador() {
               }))}
               elegida={pedido.altura}
               onElegir={(altura) => cambiar({ altura })}
+              etiqueta="Altura del tejido en metros"
             />
 
             <Etiqueta className="mt-4">Rombo</Etiqueta>
@@ -119,6 +121,7 @@ export function Cotizador() {
               opciones={ROMBOS.map((r) => ({ valor: r, texto: `${r} mm` }))}
               elegida={pedido.rombo}
               onElegir={(rombo) => cambiar({ rombo })}
+              etiqueta="Abertura del rombo en milímetros"
             />
             <p className="mt-2 text-[12px] text-tinta-suave">
               Más chico el rombo, más cerrado el tejido y más caro el rollo.
@@ -131,6 +134,7 @@ export function Cotizador() {
               opciones={TIPOS_POSTE.map((t) => ({ valor: t, texto: NOMBRE_POSTE[t] }))}
               elegida={pedido.tipoPoste}
               onElegir={(tipoPoste) => cambiar({ tipoPoste })}
+              etiqueta="Tipo de poste"
             />
 
             <div className="mt-4">
@@ -170,6 +174,7 @@ export function Cotizador() {
                     }
                     sufijo="m"
                     paso={0.1}
+                    etiqueta={`Ancho del portón ${i + 1}`}
                   />
                   <button
                     type="button"
@@ -368,17 +373,26 @@ function Numero({
   onCambio,
   sufijo,
   paso,
+  etiqueta,
 }: {
   valor: number;
   onCambio: (valor: number) => void;
   sufijo: string;
   paso: number;
+  /**
+   * El "Tramo 3" que se ve al lado del campo es un `<span>`, no un `<label>`:
+   * queda a la izquierda de una fila y asociarlo pediria un `id` por tramo.
+   * Sin este `aria-label`, un lector de pantalla anuncia el campo sin nombre y
+   * quien no ve la pantalla no sabe cual de los tres esta editando.
+   */
+  etiqueta: string;
 }) {
   return (
     <div className="flex w-32 items-center rounded-lg border border-linea-fuerte bg-white focus-within:border-acento">
       <input
         type="number"
         inputMode="decimal"
+        aria-label={etiqueta}
         min={0}
         step={paso}
         value={valor}
@@ -431,13 +445,16 @@ function Opciones<T extends string | number>({
   opciones,
   elegida,
   onElegir,
+  etiqueta,
 }: {
   opciones: { valor: T; texto: string }[];
   elegida: T;
   onElegir: (valor: T) => void;
+  /** Sin esto, un lector de pantalla lee "1,20" sin decir 1,20 de que. */
+  etiqueta: string;
 }) {
   return (
-    <div className="flex flex-wrap gap-1.5">
+    <div role="group" aria-label={etiqueta} className="flex flex-wrap gap-1.5">
       {opciones.map(({ valor, texto }) => {
         const activa = valor === elegida;
         return (
