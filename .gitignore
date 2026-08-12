@@ -39,3 +39,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/src/generated/prisma
+
+# El ejemplo si se comparte: es la unica documentacion de que variables hacen falta.
+!.env.example
+
+# La base de desarrollo es un archivo: no va al repo.
+*.db
+*.db-journal

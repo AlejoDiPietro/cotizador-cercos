@@ -1,0 +1,87 @@
+// Modelo de datos del cotizador.
+//
+// La decision que ordena todo este archivo: una cotizacion guardada NO se
+// recalcula. Guarda el pedido, pero tambien cada renglon y cada precio del dia
+// en que se hizo. Si manana sube el tejido, la cotizacion que le mande al
+// cliente la semana pasada tiene que seguir diciendo lo mismo que decia cuando
+// la mando, porque es una oferta con la que el cliente puede venir a reclamar.
+//
+// Es la misma razon por la que una factura no consulta la lista de precios: la
+// congela. Un cotizador que recalcula al abrir el link es un cotizador que le
+// cambia el precio al cliente sin avisarle.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+// SQLite para desarrollo, Postgres en produccion.
+//
+// El modelo esta escrito para que ese salto sea cambiar esta linea y el adapter
+// en src/server/db.ts, y nada mas: no usa ni un tipo propio de un motor. El
+// pedido se guarda como texto y no como `Json`, y la plata son enteros, asi que
+// el mismo schema corre igual en los dos lados. Un proyecto que solo arranca si
+// tenes una base en la nube es un proyecto que nadie clona.
+datasource db {
+  provider = "sqlite"
+}
+
+model Cotizacion {
+  id String @id @default(cuid())
+
+  /// Codigo corto para el link publico. No es el id: el id es interno y
+  /// secuencialmente adivinable no sirve para algo que se comparte por WhatsApp.
+  codigo String @unique
+
+  cliente String?
+  obra    String?
+  notas   String?
+
+  creadaEl DateTime @default(now())
+
+  /// El pedido tal como lo cargaron, para poder reabrirlo en el formulario y
+  /// cotizar una variante sin empezar de cero.
+  ///
+  /// Texto y no `Json`: `Json` no existe en todos los motores, y de todas
+  /// formas lo que sale de la base se valida con Zod al leerlo. Un blob que
+  /// guardo yo el mes pasado no es mas confiable que uno que manda un cliente.
+  pedido String
+
+  /// Totales congelados, en CENTAVOS y sin IVA salvo `total`.
+  materiales Int
+  manoDeObra Int
+  subtotal   Int
+  iva        Int
+  total      Int
+
+  items Item[]
+
+  @@index([creadaEl])
+}
+
+model Item {
+  id String @id @default(cuid())
+
+  cotizacionId String
+  cotizacion   Cotizacion @relation(fields: [cotizacionId], references: [id], onDelete: Cascade)
+
+  /// Que material es. Es un string y no una relacion a proposito: si el
+  /// catalogo cambia o se deja de vender un articulo, el renglon de una
+  /// cotizacion vieja tiene que seguir existiendo igual.
+  codigo      String
+  descripcion String
+  unidad      String
+
+  /// Hay cantidades fraccionarias (kg de alambre de atadura), asi que no es Int.
+  /// Decimal y no Float: con Float, 0.1 + 0.2 no da 0.3.
+  cantidad Decimal
+
+  /// En centavos, sin IVA.
+  precioUnitario Int
+  subtotal       Int
+
+  /// El orden en que se imprime. Sin esto, el PDF sale distinto cada vez.
+  orden Int
+
+  @@index([cotizacionId])
+}

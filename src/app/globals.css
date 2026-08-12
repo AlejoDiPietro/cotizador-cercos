@@ -1,26 +1,89 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/**
+ * Un solo lugar donde se decide como se ve la app.
+ * Ningun componente escribe un color a mano: todos piden un token de estos.
+ */
+@theme {
+  --color-papel: #fbfaf7;
+  --color-tinta: #16191d;
+  --color-tinta-suave: #5b6470;
+  --color-linea: #e2ddd5;
+  --color-linea-fuerte: #cfc8bd;
+
+  /* Oxido: es el color de un alambrado a la intemperie. */
+  --color-acento: #a2542a;
+  --color-acento-claro: #f4ece5;
+
+  --color-panel: #1b1f24;
+  --color-panel-suave: #2a3037;
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  /* Ancla el scroll debajo del header fijo cuando se salta a una seccion. */
+  scroll-padding-top: 5rem;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-papel);
+  color: var(--color-tinta);
+  font-family: var(--font-sans);
+}
+
+/**
+ * Las cantidades y los precios van en monoespaciada y con las cifras del mismo
+ * ancho. En una tabla de presupuesto, las unidades tienen que quedar alineadas
+ * en columna: si bailan, el numero se lee mal y se desconfia del total.
+ */
+.cifra {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Saca las flechitas de los inputs numericos: se toca el numero, no la flecha. */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  appearance: textfield;
+}
+
+/**
+ * Impresion.
+ *
+ * El PDF de la cotizacion es la pagina impresa por el navegador, sin una
+ * libreria de PDF. Un presupuesto es una hoja con una tabla y un total: pagar
+ * 500 kB de JavaScript para dibujar lo que el navegador ya sabe dibujar seria
+ * al reves. Lo unico que hace falta es decirle que sacar.
+ */
+@media print {
+  .no-imprimir {
+    display: none !important;
+  }
+
+  body {
+    background: #fff;
+  }
+
+  /* Un renglon de la tabla no se corta entre dos hojas. */
+  tr,
+  .junto {
+    break-inside: avoid;
+  }
+
+  /* Que se vea a que URL apunta cada link cuando esta en papel. */
+  .link-impreso::after {
+    content: " (" attr(href) ")";
+    font-size: 0.75rem;
+    color: #555;
+  }
+
+  @page {
+    margin: 14mm;
+  }
 }
