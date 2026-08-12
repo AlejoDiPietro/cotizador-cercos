@@ -1,0 +1,6 @@
+# Codigo generado: lo escribe Prisma, no se toca a mano.
+src/generated
+# Prisma tiene su propio formateador: `prisma format`.
+prisma/schema.prisma
+.next
+out
