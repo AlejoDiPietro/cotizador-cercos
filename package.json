@@ -17,7 +17,7 @@
     "db:reset": "node -e \"require('fs').rmSync('dev.db',{force:true})\" && prisma db push && npm run db:seed",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "vercel-build": "prisma db push && tsx prisma/seed.ts && next build"
+    "vercel-build": "node scripts/verificar-entorno.mjs && prisma db push && tsx prisma/seed.ts && next build"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.9.1",
