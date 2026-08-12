@@ -15,15 +15,15 @@ generator client {
   output   = "../src/generated/prisma"
 }
 
-// SQLite para desarrollo, Postgres en produccion.
+// Postgres.
 //
-// El modelo esta escrito para que ese salto sea cambiar esta linea y el adapter
-// en src/server/db.ts, y nada mas: no usa ni un tipo propio de un motor. El
-// pedido se guarda como texto y no como `Json`, y la plata son enteros, asi que
-// el mismo schema corre igual en los dos lados. Un proyecto que solo arranca si
-// tenes una base en la nube es un proyecto que nadie clona.
+// Arranco en SQLite y el salto costo exactamente lo que decia que iba a costar:
+// esta linea y el adapter en src/server/db.ts. Ni un modelo, ni un campo, ni una
+// consulta. Eso es lo que se gana con no usar tipos propios de un motor: el
+// pedido guardado como texto y no como `Json`, la plata como enteros y ningun
+// atributo `@db.` de Postgres.
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
 }
 
 /// La lista de precios, que es lo unico de este proyecto que cambia todas las
