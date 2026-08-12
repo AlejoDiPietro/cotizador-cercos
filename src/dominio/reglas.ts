@@ -107,12 +107,25 @@ export type Material = {
  * El precio del rollo y del poste dependen de la altura y del material, asi
  * que se resuelven con una funcion y no con una constante suelta.
  */
+/**
+ * Redondeo al peso entero.
+ *
+ * Nadie cotiza un rollo de tejido con centavos. Y hay una razon mas fuerte que
+ * la costumbre: el presupuesto se muestra al peso, asi que si un renglon
+ * tuviera centavos, la suma de lo que se lee en la hoja no daria el total que
+ * se lee abajo. Un presupuesto donde los renglones no suman el total es un
+ * presupuesto que el cliente no firma.
+ */
+export function aPesosEnteros(valorEnCentavos: number): number {
+  return Math.round(valorEnCentavos / 100) * 100;
+}
+
 export function precioRollo(altura: Altura, rombo: Rombo): number {
   const base = 4_200_000; // $42.000 el rollo de 10 m x 1,00 m
   const porAltura = altura / 1.0;
   // Rombo mas chico = mas alambre por metro cuadrado = mas caro.
   const porRombo = 63 / rombo;
-  return Math.round(base * porAltura * porRombo);
+  return aPesosEnteros(base * porAltura * porRombo);
 }
 
 export function precioPoste(
@@ -129,7 +142,7 @@ export function precioPoste(
   const largo = altura + 0.6;
   // El esquinero y el terminal son de seccion mas gruesa.
   const refuerzo = estructural ? 1.35 : 1;
-  return Math.round(base[tipo] * largo * refuerzo);
+  return aPesosEnteros(base[tipo] * largo * refuerzo);
 }
 
 export const PRECIOS: Record<

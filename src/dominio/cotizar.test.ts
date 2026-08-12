@@ -130,6 +130,29 @@ describe("la plata", () => {
     expect(Number.isInteger(c.iva)).toBe(true);
   });
 
+  it("la columna de subtotales suma exactamente el total que se lee abajo", () => {
+    // La hoja se muestra al peso. Si un renglon tuviera centavos, lo que suma
+    // el cliente con la calculadora no daria el total impreso, y ahi se cae la
+    // cotizacion entera. Todo valor que se muestra es multiplo de 100 centavos.
+    const c = cotizar(
+      pedido({
+        tramos: [37.5, 12.3, 8.7],
+        portones: [2.5, 3.2],
+        conHormigon: true,
+        conManoDeObra: true,
+      }),
+    );
+
+    c.items.forEach((i) => expect(i.subtotal % 100).toBe(0));
+    expect(c.manoDeObra % 100).toBe(0);
+    expect(c.iva % 100).toBe(0);
+    expect(c.total % 100).toBe(0);
+
+    const sumaEnPesos = c.items.reduce((a, i) => a + i.subtotal / 100, 0);
+    expect(sumaEnPesos).toBe(c.materiales / 100);
+    expect(sumaEnPesos + c.manoDeObra / 100 + c.iva / 100).toBe(c.total / 100);
+  });
+
   it("el total es el subtotal con IVA, y el subtotal es lo que suman los items", () => {
     const c = cotizar(pedido({ conManoDeObra: true, conHormigon: true }));
     const sumaDeItems = c.items.reduce((a, i) => a + i.subtotal, 0);

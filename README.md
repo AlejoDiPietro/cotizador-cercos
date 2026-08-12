@@ -25,7 +25,7 @@ guardar y **descarta los totales que manda el cliente**: si el total viajara
 desde el navegador, cualquiera podría guardar 200 m de cerco con un total de $1
 y venir a reclamarlo. No es duplicación, es el mismo módulo importado dos veces.
 
-**Se puede probar de verdad.** Los [24 tests](src/dominio/cotizar.test.ts) no
+**Se puede probar de verdad.** Los [25 tests](src/dominio/cotizar.test.ts) no
 verifican que el código corra: verifican la cuenta. Cada caso es un error que se
 comete cotizando a mano.
 
@@ -35,6 +35,7 @@ comete cotizando a mano.
 ✓ un perímetro cerrado no tiene terminales: todas las puntas son esquineros
 ✓ el portón no lleva tejido: le resta metros al rollo
 ✓ todo subtotal es un entero de centavos: no existe medio centavo
+✓ la columna de subtotales suma exactamente el total que se lee abajo
 ```
 
 ### 2. Una cotización guardada no se recalcula
@@ -59,6 +60,11 @@ dígito del total. Todos los precios son `Int` en centavos y recién se dividen
 para mostrarlos, en un solo lugar
 ([`pesos()`](src/dominio/cotizar.ts)). Las cantidades fraccionarias (kg de
 alambre) son `Decimal` en la base, no `Float`, por lo mismo.
+
+Y todo lo que se imprime se redondea **al peso, no al centavo**: la hoja se
+muestra sin centavos, así que si un renglón los tuviera, lo que suma el cliente
+con la calculadora no daría el total impreso. Un presupuesto cuyos renglones no
+suman el total es un presupuesto que no se firma.
 
 ### 4. Las reglas del oficio están separadas del cálculo
 
@@ -117,7 +123,7 @@ src/
   dominio/          el cálculo y las reglas — código puro, sin framework
     reglas.ts       los números del oficio
     cotizar.ts      la función pura
-    cotizar.test.ts los 24 tests
+    cotizar.test.ts los 25 tests
     pedido.ts       el schema de Zod, compartido entre cliente y servidor
   server/           tRPC, Prisma y el generador de códigos
   components/       las piezas de UI

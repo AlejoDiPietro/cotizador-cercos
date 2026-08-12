@@ -15,6 +15,7 @@ import {
   MANO_DE_OBRA_PORTON,
   MANO_DE_OBRA_POR_METRO,
   NOMBRE_POSTE,
+  aPesosEnteros,
   PRECIOS,
   PUNTALES_POR_ESQUINERO,
   PUNTALES_POR_TERMINAL,
@@ -94,9 +95,15 @@ function contarPostes(tramos: number[], cerrado: boolean) {
   return { intermedios, esquineros, terminales };
 }
 
-/** Redondeo de plata: los centavos son enteros, nunca medio centavo. */
+/**
+ * Redondeo de plata.
+ *
+ * Todo lo que se muestra en la hoja se redondea al peso, no al centavo, para
+ * que la columna de subtotales sume exactamente el total de abajo. Ver
+ * `aPesosEnteros` en reglas.ts.
+ */
 function centavos(valor: number): number {
-  return Math.round(valor);
+  return aPesosEnteros(valor);
 }
 
 export function cotizar(pedido: Pedido): Cotizacion {
