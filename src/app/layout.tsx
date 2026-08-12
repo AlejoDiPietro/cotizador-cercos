@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
+import { Nav } from "@/components/Nav";
 import { Proveedores } from "@/lib/trpc";
 import "./globals.css";
 
@@ -29,14 +30,17 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
-        <header className="no-imprimir sticky top-0 z-20 border-b border-linea bg-papel/85 backdrop-blur">
+        <header className="no-imprimir sticky top-0 z-20 border-b border-linea bg-fondo/85 backdrop-blur">
           <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-5">
-            <Link href="/" className="group flex items-center gap-2.5">
-              <Cerco />
-              <span className="text-[15px] font-semibold tracking-tight">
-                Cotizador de cercos
-              </span>
-            </Link>
+            <div className="flex items-center gap-5">
+              <Link href="/" className="group flex items-center gap-2.5">
+                <Cerco />
+                <span className="text-[15px] font-semibold tracking-tight">
+                  Cotizador de cercos
+                </span>
+              </Link>
+              <Nav />
+            </div>
 
             <a
               href="https://github.com/AlejoDiPietro/cotizador-cercos"
